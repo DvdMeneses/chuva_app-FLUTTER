@@ -1,40 +1,64 @@
+import 'package:chuva_dart/database/database.dart';
+
+import 'package:chuva_dart/widgets/card_sobre.dart';
+
+import 'package:chuva_dart/pages/cards_events.dart';
+import 'package:chuva_dart/widgets/dia_tab.dart';
+import 'package:chuva_dart/widgets/mes_ano.dart';
+
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const ChuvaDart());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database =
+      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  runApp(MyApp(
+    database: database,
+  ));
 }
 
-class ChuvaDart extends StatelessWidget {
-  const ChuvaDart({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key, required this.database}) : super(key: key);
 
-  // This widget is the root of your application.
+  final AppDatabase database;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const Calendar(),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'ChuvaApp',
+        home: MyHomePage(
+          title: 'ChuvaApp',
+          database: database,
+        ));
   }
 }
 
-class Calendar extends StatefulWidget {
-  const Calendar({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title, required this.database})
+      : super(key: key);
+
+  final AppDatabase database;
+  final String title;
 
   @override
-  State<Calendar> createState() => _CalendarState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _CalendarState extends State<Calendar> {
-  DateTime _currentDate = DateTime(2023, 11, 26);
-  bool _clicked = false;
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  int _counter = 1;
 
-  void _changeDate(DateTime newDate) {
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 6, vsync: this, initialIndex: 1);
+  }
+
+  void _incrementCounter() {
     setState(() {
-      _currentDate = newDate;
+      _counter++;
     });
   }
 
@@ -42,102 +66,161 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Chuva ❤️ Flutter'),
-      ),
-      body: Center(
-        child: Column(
+        backgroundColor: const Color.fromARGB(255, 69, 97, 137),
+        elevation: 8,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Programação',
-            ),
-            const Text(
-              'Nov',
-            ),
-            const Text(
-              '2023',
-            ),
-            OutlinedButton(
-              onPressed: () {
-                _changeDate(DateTime(2023, 11, 26));
-              },
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 108.0),
               child: Text(
-                '26',
-                style: Theme.of(context).textTheme.headlineMedium,
+                "Chuva 💜 Flutter",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            OutlinedButton(
-              onPressed: () {
-                _changeDate(DateTime(2023, 11, 28));
-              },
+            Padding(
+              padding: EdgeInsets.only(left: 124.0),
               child: Text(
-                '28',
-                style: Theme.of(context).textTheme.headlineMedium,
+                "Programação",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white70,
+                ),
               ),
             ),
-            if (_currentDate.day == 26)
-              OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _clicked = true;
-                    });
-                  },
-                  child: const Text('Mesa redonda de 07:00 até 08:00')),
-            if (_currentDate.day == 28)
-              OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _clicked = true;
-                    });
-                  },
-                  child: const Text('Palestra de 09:30 até 10:00')),
-            if (_currentDate.day == 26 && _clicked) const Activity(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class Activity extends StatefulWidget {
-  const Activity({super.key});
-
-  @override
-  State<Activity> createState() => _ActivityState();
-}
-
-class _ActivityState extends State<Activity> {
-  bool _favorited = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.inversePrimary,
-      child: Column(children: [
-        Text(
-          'Activity title',
-          style: Theme.of(context).textTheme.bodySmall,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(80.0),
+          child: Column(
+            children: [
+              SizedBox(height: 8),
+              Container(
+                height: 50,
+                margin: EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Stack(
+                  children: [
+                    const TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Exibindo todas atividades',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(left: 90),
+                      ),
+                    ),
+                    Positioned(
+                      left: 10,
+                      top: 5,
+                      bottom: 5,
+                      child: Container(
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 48, 109, 195),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.calendar_month_outlined),
+                          onPressed: () {},
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                color: Colors.white,
+                height: 1,
+              ),
+            ],
+          ),
         ),
-        const Text('A Física dos Buracos Negros Supermassivos'),
-        const Text('Mesa redonda'),
-        const Text('Domingo 07:00h - 08:00h'),
-        const Text('Sthepen William Hawking'),
-        const Text('Maputo'),
-        const Text('Astrofísica e Cosmologia'),
-        ElevatedButton.icon(
-          onPressed: () {
-            setState(() {
-              _favorited = !_favorited;
-            });
-          },
-          icon: _favorited
-              ? const Icon(Icons.star)
-              : const Icon(Icons.star_outline),
-          label: Text(
-              _favorited ? 'Remover da sua agenda' : 'Adicionar à sua agenda'),
-        )
-      ]),
+      ),
+      body: Column(
+        children: [
+          Container(
+            color: const Color.fromARGB(255, 48, 109, 195),
+            child: Column(
+              children: [
+                TabBar(
+                  isScrollable: false,
+                  controller: _tabController,
+                  labelPadding: const EdgeInsets.symmetric(
+                      horizontal: 0.0, vertical: 0.0),
+                  indicatorColor: Color.fromARGB(255, 69, 97, 137),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  onTap: (index) {
+                    if (index == 0) {}
+                  },
+                  tabs: <Widget>[
+                    InkWell(
+                      onTap: () {},
+                      child: const SizedBox(
+                        height: 60,
+                        width: 70,
+                        child: MesAno(mes: "NOV", ano: "2023"),
+                      ),
+                    ),
+                    DiaTab(day: 26),
+                    DiaTab(day: 27),
+                    DiaTab(day: 28),
+                    DiaTab(day: 29),
+                    DiaTab(day: 30),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                const Center(
+                  child: CardSobre(),
+                ),
+                Center(
+                  child: CardEventos(
+                    date: '2023-11-26',
+                    database: widget.database,
+                  ),
+                ),
+                Center(
+                    child: CardEventos(
+                  date: '2023-11-27',
+                  database: widget.database,
+                )),
+                Center(
+                  child: CardEventos(
+                    date: '2023-11-28',
+                    database: widget.database,
+                  ),
+                ),
+                Center(
+                  child: CardEventos(
+                    date: '2023-11-29',
+                    database: widget.database,
+                  ),
+                ),
+                Center(
+                  child: CardEventos(
+                    date: '2023-11-30',
+                    database: widget.database,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

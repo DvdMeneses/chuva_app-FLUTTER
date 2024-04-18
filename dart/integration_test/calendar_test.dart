@@ -2,6 +2,8 @@ import 'package:chuva_dart/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'package:test/test.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -16,7 +18,9 @@ void main() {
       expect(find.text('Mesa redonda de 07:00 até 08:00'), findsOneWidget);
     });
 
-    testWidgets('Seleciona dia 28 e verifica que a mesa redonda foi renderizada', (WidgetTester tester) async {
+    testWidgets(
+        'Seleciona dia 28 e verifica que a mesa redonda foi renderizada',
+        (WidgetTester tester) async {
       await tester.pumpWidget(const ChuvaDart());
 
       // Check that 'Palestra de 09:30 até 10:00' is not on the screen before tapping '28'.
